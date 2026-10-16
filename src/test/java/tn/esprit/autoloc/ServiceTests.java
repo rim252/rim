@@ -44,13 +44,14 @@ class ServiceTests {
         Agence saved = agenceService.create(agence);
         assertNotNull(saved);
         assertNotNull(saved.getIdAgence());
-        System.out.println("Agence enregistrée : id=" + saved.getIdAgence() + ", nom=" + saved.getNom());
+        Long idAgence = saved.getIdAgence();
+        System.out.println("Agence enregistrée : id=" + idAgence + ", nom=" + saved.getNom());
 
         System.out.println("--- findAll ---");
         agenceService.findAll().forEach(a ->
                 System.out.println(a.getIdAgence() + " | " + a.getNom() + " | " + a.getVille()));
 
-        Agence trouvee = agenceService.findById(saved.getIdAgence());
+        Agence trouvee = agenceService.findById(idAgence);
         assertEquals("Agence Tunis Centre", trouvee.getNom());
         System.out.println("findById : " + trouvee.getNom());
 
@@ -60,17 +61,17 @@ class ServiceTests {
         modif.setVille("Tunis");
         modif.setAdresse("Les Berges du Lac");
         modif.setTelephone("71111111");
-        Agence maj = agenceService.update(saved.getIdAgence(), modif);
+        Agence maj = agenceService.update(idAgence, modif);
         assertEquals("Agence Tunis Lac", maj.getNom());
         System.out.println("update : " + maj.getNom());
 
         assertEquals(avant + 1, agenceRepository.count());
         System.out.println("Nombre d'agences : " + agenceRepository.count());
 
-        agenceService.deleteById(saved.getIdAgence());
-        assertFalse(agenceRepository.existsById(saved.getIdAgence()));
+        agenceService.deleteById(idAgence);
+        assertFalse(agenceRepository.existsById(idAgence));
         assertThrows(ResourceNotFoundException.class,
-                () -> agenceService.findById(saved.getIdAgence()));
+                () -> agenceService.findById(idAgence));
         assertEquals(avant, agenceRepository.count());
         System.out.println("Agence supprimée, elle n'existe plus.");
     }
@@ -101,28 +102,30 @@ class ServiceTests {
         assertNotNull(s1.getIdClient());
         assertNotNull(s2.getIdClient());
         assertNotEquals(s1.getIdClient(), s2.getIdClient());
-        System.out.println("Clients enregistrés : " + s1.getIdClient() + " et " + s2.getIdClient());
+        Long idClient1 = s1.getIdClient();
+        Long idClient2 = s2.getIdClient();
+        System.out.println("Clients enregistrés : " + idClient1 + " et " + idClient2);
 
         System.out.println("--- findAll ---");
         clientService.findAll().forEach(c ->
                 System.out.println(c.getIdClient() + " | " + c.getNom() + " " + c.getPrenom()
                         + " | " + c.getEmail()));
 
-        Client trouve = clientService.findById(s1.getIdClient());
+        Client trouve = clientService.findById(idClient1);
         assertEquals("Ben Ali", trouve.getNom());
         System.out.println("findById : " + trouve.getNom() + " " + trouve.getPrenom());
 
         assertEquals(avant + 2, clientRepository.count());
         System.out.println("Nombre de clients : " + clientRepository.count());
 
-        clientService.deleteById(s1.getIdClient());
-        assertFalse(clientRepository.existsById(s1.getIdClient()));
+        clientService.deleteById(idClient1);
+        assertFalse(clientRepository.existsById(idClient1));
         assertThrows(ResourceNotFoundException.class,
-                () -> clientService.findById(s1.getIdClient()));
-        System.out.println("Client " + s1.getIdClient() + " supprimé, il n'existe plus.");
+                () -> clientService.findById(idClient1));
+        System.out.println("Client " + idClient1 + " supprimé, il n'existe plus.");
 
         // nettoyage du second client
-        clientService.deleteById(s2.getIdClient());
+        clientService.deleteById(idClient2);
         assertEquals(avant, clientRepository.count());
     }
 
