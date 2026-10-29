@@ -1,4 +1,4 @@
-package tn.esprit.autoloc.service.impl;
+package tn.esprit.autoloc.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Maintenance;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IMaintenanceRepository;
-import tn.esprit.autoloc.service.IMaintenanceService;
 
 @Service
 @RequiredArgsConstructor
@@ -15,13 +14,13 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
     private final IMaintenanceRepository maintenanceRepository;
 
     @Override
-    public Maintenance create(Maintenance maintenance) {
-        if (maintenance.getIdMaintenance() != null) {
+    public Maintenance create(Maintenance entite) {
+        if (entite.getIdMaintenance() != null) {
             throw new IllegalArgumentException(
-                    "Une nouvelle maintenance ne doit pas avoir d'identifiant");
+                    "Un nouveau maintenance ne doit pas avoir d'identifiant");
         }
-        verifierRegles(maintenance);
-        return maintenanceRepository.save(maintenance);
+        valider(entite);
+        return maintenanceRepository.save(entite);
     }
 
     @Override
@@ -36,13 +35,13 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
     }
 
     @Override
-    public Maintenance update(Long id, Maintenance maintenance) {
+    public Maintenance update(Long id, Maintenance entite) {
         Maintenance existant = findById(id);
-        verifierRegles(maintenance);
-        existant.setDateDebut(maintenance.getDateDebut());
-        existant.setDateFin(maintenance.getDateFin());
-        existant.setDescription(maintenance.getDescription());
-        existant.setVehicule(maintenance.getVehicule());
+        valider(entite);
+        existant.setDateDebut(entite.getDateDebut());
+        existant.setDateFin(entite.getDateFin());
+        existant.setDescription(entite.getDescription());
+        existant.setVehicule(entite.getVehicule());
         return maintenanceRepository.save(existant);
     }
 
@@ -54,10 +53,12 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
         maintenanceRepository.deleteById(id);
     }
 
-    private void verifierRegles(Maintenance maintenance) {
-        if (maintenance.getDateDebut() != null
-                && maintenance.getDateFin() != null
-                && maintenance.getDateFin().isBefore(maintenance.getDateDebut())) {
+    private void valider(Maintenance entite) {
+        if (entite.getDateDebut() == null) {
+            throw new IllegalArgumentException(
+                    "La date de début de la maintenance est obligatoire");
+        }
+        if (entite.getDateFin() != null && entite.getDateFin().isBefore(entite.getDateDebut())) {
             throw new IllegalArgumentException(
                     "La date de fin ne peut pas être antérieure à la date de début");
         }

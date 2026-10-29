@@ -29,12 +29,10 @@ public class Vehicule {
 
     @OneToMany(mappedBy = "vehicule")
     @JsonIgnore
-    @ToString.Exclude
     private List<Reservation> reservations = new ArrayList<>();
 
     @OneToMany(mappedBy = "vehicule", cascade = CascadeType.ALL)
     @JsonIgnore
-    @ToString.Exclude
     private List<Maintenance> maintenances = new ArrayList<>();
 
     @ManyToMany

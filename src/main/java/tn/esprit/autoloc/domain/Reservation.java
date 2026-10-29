@@ -5,10 +5,15 @@ import java.time.LocalDate;
 import lombok.*;
 
 @Entity
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class Reservation {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idReservation;
+
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
@@ -23,7 +28,7 @@ public class Reservation {
     @JoinColumn(name = "vehicule_id")
     private Vehicule vehicule;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "contrat_id")
     private Contrat contrat;
 }

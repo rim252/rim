@@ -1,4 +1,4 @@
-package tn.esprit.autoloc.service.impl;
+package tn.esprit.autoloc.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Equipement;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IEquipementRepository;
-import tn.esprit.autoloc.service.IEquipementService;
 
 @Service
 @RequiredArgsConstructor
@@ -15,13 +14,13 @@ public class EquipementServiceImpl implements IEquipementService {
     private final IEquipementRepository equipementRepository;
 
     @Override
-    public Equipement create(Equipement equipement) {
-        if (equipement.getIdEquipement() != null) {
+    public Equipement create(Equipement entite) {
+        if (entite.getIdEquipement() != null) {
             throw new IllegalArgumentException(
-                    "Un nouvel équipement ne doit pas avoir d'identifiant");
+                    "Un nouveau equipement ne doit pas avoir d'identifiant");
         }
-        verifierRegles(equipement);
-        return equipementRepository.save(equipement);
+        valider(entite);
+        return equipementRepository.save(entite);
     }
 
     @Override
@@ -36,11 +35,10 @@ public class EquipementServiceImpl implements IEquipementService {
     }
 
     @Override
-    public Equipement update(Long id, Equipement equipement) {
+    public Equipement update(Long id, Equipement entite) {
         Equipement existant = findById(id);
-        verifierRegles(equipement);
-        existant.setLibelle(equipement.getLibelle());
-        // vehicules non touchés : côté inverse de la relation (mappedBy)
+        valider(entite);
+        existant.setLibelle(entite.getLibelle());
         return equipementRepository.save(existant);
     }
 
@@ -52,9 +50,10 @@ public class EquipementServiceImpl implements IEquipementService {
         equipementRepository.deleteById(id);
     }
 
-    private void verifierRegles(Equipement equipement) {
-        if (equipement.getLibelle() == null || equipement.getLibelle().isBlank()) {
-            throw new IllegalArgumentException("Le libellé de l'équipement est obligatoire");
+    private void valider(Equipement entite) {
+        if (entite.getLibelle() == null || entite.getLibelle().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Le libellé de l'équipement est obligatoire");
         }
     }
 }

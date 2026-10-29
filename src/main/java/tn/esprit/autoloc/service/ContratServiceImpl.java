@@ -1,4 +1,4 @@
-package tn.esprit.autoloc.service.impl;
+package tn.esprit.autoloc.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Contrat;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IContratRepository;
-import tn.esprit.autoloc.service.IContratService;
 
 @Service
 @RequiredArgsConstructor
@@ -15,13 +14,13 @@ public class ContratServiceImpl implements IContratService {
     private final IContratRepository contratRepository;
 
     @Override
-    public Contrat create(Contrat contrat) {
-        if (contrat.getIdContrat() != null) {
+    public Contrat create(Contrat entite) {
+        if (entite.getIdContrat() != null) {
             throw new IllegalArgumentException(
                     "Un nouveau contrat ne doit pas avoir d'identifiant");
         }
-        verifierRegles(contrat);
-        return contratRepository.save(contrat);
+        valider(entite);
+        return contratRepository.save(entite);
     }
 
     @Override
@@ -36,13 +35,13 @@ public class ContratServiceImpl implements IContratService {
     }
 
     @Override
-    public Contrat update(Long id, Contrat contrat) {
+    public Contrat update(Long id, Contrat entite) {
         Contrat existant = findById(id);
-        verifierRegles(contrat);
-        existant.setDateSignature(contrat.getDateSignature());
-        existant.setMontantTotal(contrat.getMontantTotal());
-        existant.setValide(contrat.isValide());
-        // ni l'identifiant, ni la collection de paiements (orphanRemoval), ni la réservation
+        valider(entite);
+        existant.setDateSignature(entite.getDateSignature());
+        existant.setMontantTotal(entite.getMontantTotal());
+        existant.setValide(entite.isValide());
+        existant.setReservation(entite.getReservation());
         return contratRepository.save(existant);
     }
 
@@ -51,12 +50,13 @@ public class ContratServiceImpl implements IContratService {
         if (!contratRepository.existsById(id)) {
             throw new ResourceNotFoundException("Contrat", id);
         }
-        contratRepository.deleteById(id); // les paiements sont supprimés par cascade
+        contratRepository.deleteById(id);
     }
 
-    private void verifierRegles(Contrat contrat) {
-        if (contrat.getMontantTotal() != null && contrat.getMontantTotal().signum() < 0) {
-            throw new IllegalArgumentException("Le montant total ne peut pas être négatif");
+    private void valider(Contrat entite) {
+        if (entite.getMontantTotal() == null || entite.getMontantTotal().signum() < 0) {
+            throw new IllegalArgumentException(
+                    "Le montant total est obligatoire et ne peut pas être négatif");
         }
     }
 }

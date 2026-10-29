@@ -1,4 +1,4 @@
-package tn.esprit.autoloc.service.impl;
+package tn.esprit.autoloc.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Client;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IClientRepository;
-import tn.esprit.autoloc.service.IClientService;
 
 @Service
 @RequiredArgsConstructor
@@ -15,13 +14,13 @@ public class ClientServiceImpl implements IClientService {
     private final IClientRepository clientRepository;
 
     @Override
-    public Client create(Client client) {
-        if (client.getIdClient() != null) {
+    public Client create(Client entite) {
+        if (entite.getIdClient() != null) {
             throw new IllegalArgumentException(
                     "Un nouveau client ne doit pas avoir d'identifiant");
         }
-        verifierRegles(client);
-        return clientRepository.save(client);
+        valider(entite);
+        return clientRepository.save(entite);
     }
 
     @Override
@@ -36,16 +35,15 @@ public class ClientServiceImpl implements IClientService {
     }
 
     @Override
-    public Client update(Long id, Client client) {
+    public Client update(Long id, Client entite) {
         Client existant = findById(id);
-        verifierRegles(client);
-        existant.setNom(client.getNom());
-        existant.setPrenom(client.getPrenom());
-        existant.setEmail(client.getEmail());
-        existant.setTelephone(client.getTelephone());
-        existant.setNumPermis(client.getNumPermis());
-        existant.setDateInscription(client.getDateInscription());
-        // reservations non touchées
+        valider(entite);
+        existant.setNom(entite.getNom());
+        existant.setPrenom(entite.getPrenom());
+        existant.setEmail(entite.getEmail());
+        existant.setTelephone(entite.getTelephone());
+        existant.setNumPermis(entite.getNumPermis());
+        existant.setDateInscription(entite.getDateInscription());
         return clientRepository.save(existant);
     }
 
@@ -57,12 +55,10 @@ public class ClientServiceImpl implements IClientService {
         clientRepository.deleteById(id);
     }
 
-    private void verifierRegles(Client client) {
-        if (client.getNom() == null || client.getNom().isBlank()) {
-            throw new IllegalArgumentException("Le nom du client est obligatoire");
-        }
-        if (client.getEmail() == null || client.getEmail().isBlank()) {
-            throw new IllegalArgumentException("L'e-mail du client est obligatoire");
+    private void valider(Client entite) {
+        if (entite.getNom() == null || entite.getNom().isBlank() || entite.getEmail() == null || entite.getEmail().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Le nom et l'e-mail du client sont obligatoires");
         }
     }
 }

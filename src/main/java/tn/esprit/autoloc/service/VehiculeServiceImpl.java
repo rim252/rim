@@ -1,4 +1,4 @@
-package tn.esprit.autoloc.service.impl;
+package tn.esprit.autoloc.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Vehicule;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IVehiculeRepository;
-import tn.esprit.autoloc.service.IVehiculeService;
 
 @Service
 @RequiredArgsConstructor
@@ -15,13 +14,13 @@ public class VehiculeServiceImpl implements IVehiculeService {
     private final IVehiculeRepository vehiculeRepository;
 
     @Override
-    public Vehicule create(Vehicule vehicule) {
-        if (vehicule.getIdVehicule() != null) {
+    public Vehicule create(Vehicule entite) {
+        if (entite.getIdVehicule() != null) {
             throw new IllegalArgumentException(
-                    "Un nouveau véhicule ne doit pas avoir d'identifiant");
+                    "Un nouveau vehicule ne doit pas avoir d'identifiant");
         }
-        verifierRegles(vehicule);
-        return vehiculeRepository.save(vehicule);
+        valider(entite);
+        return vehiculeRepository.save(entite);
     }
 
     @Override
@@ -36,17 +35,17 @@ public class VehiculeServiceImpl implements IVehiculeService {
     }
 
     @Override
-    public Vehicule update(Long id, Vehicule vehicule) {
+    public Vehicule update(Long id, Vehicule entite) {
         Vehicule existant = findById(id);
-        verifierRegles(vehicule);
-        existant.setImmatriculation(vehicule.getImmatriculation());
-        existant.setMarque(vehicule.getMarque());
-        existant.setModele(vehicule.getModele());
-        existant.setCategorie(vehicule.getCategorie());
-        existant.setTarifJournalier(vehicule.getTarifJournalier());
-        existant.setStatut(vehicule.getStatut());
-        existant.setAgence(vehicule.getAgence());
-        existant.setEquipements(vehicule.getEquipements());
+        valider(entite);
+        existant.setImmatriculation(entite.getImmatriculation());
+        existant.setMarque(entite.getMarque());
+        existant.setModele(entite.getModele());
+        existant.setCategorie(entite.getCategorie());
+        existant.setTarifJournalier(entite.getTarifJournalier());
+        existant.setStatut(entite.getStatut());
+        existant.setAgence(entite.getAgence());
+        existant.setEquipements(entite.getEquipements());
         return vehiculeRepository.save(existant);
     }
 
@@ -58,11 +57,10 @@ public class VehiculeServiceImpl implements IVehiculeService {
         vehiculeRepository.deleteById(id);
     }
 
-    private void verifierRegles(Vehicule vehicule) {
-        if (vehicule.getTarifJournalier() != null
-                && vehicule.getTarifJournalier().signum() < 0) {
+    private void valider(Vehicule entite) {
+        if (entite.getTarifJournalier() == null || entite.getTarifJournalier().signum() < 0) {
             throw new IllegalArgumentException(
-                    "Le tarif journalier ne peut pas être négatif");
+                    "Le tarif journalier est obligatoire et ne peut pas être négatif");
         }
     }
 }

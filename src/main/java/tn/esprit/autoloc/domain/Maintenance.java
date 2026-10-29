@@ -1,6 +1,5 @@
 package tn.esprit.autoloc.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;
@@ -16,7 +15,5 @@ public class Maintenance {
 
     @ManyToOne
     @JoinColumn(name = "vehicule_id")
-    @JsonIgnore
-    @ToString.Exclude
     private Vehicule vehicule;
 }

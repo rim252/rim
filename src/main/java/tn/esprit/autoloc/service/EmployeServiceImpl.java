@@ -1,4 +1,4 @@
-package tn.esprit.autoloc.service.impl;
+package tn.esprit.autoloc.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Employe;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IEmployeRepository;
-import tn.esprit.autoloc.service.IEmployeService;
 
 @Service
 @RequiredArgsConstructor
@@ -15,13 +14,13 @@ public class EmployeServiceImpl implements IEmployeService {
     private final IEmployeRepository employeRepository;
 
     @Override
-    public Employe create(Employe employe) {
-        if (employe.getIdEmploye() != null) {
+    public Employe create(Employe entite) {
+        if (entite.getIdEmploye() != null) {
             throw new IllegalArgumentException(
-                    "Un nouvel employé ne doit pas avoir d'identifiant");
+                    "Un nouveau employe ne doit pas avoir d'identifiant");
         }
-        verifierRegles(employe);
-        return employeRepository.save(employe);
+        valider(entite);
+        return employeRepository.save(entite);
     }
 
     @Override
@@ -36,13 +35,13 @@ public class EmployeServiceImpl implements IEmployeService {
     }
 
     @Override
-    public Employe update(Long id, Employe employe) {
+    public Employe update(Long id, Employe entite) {
         Employe existant = findById(id);
-        verifierRegles(employe);
-        existant.setNom(employe.getNom());
-        existant.setPrenom(employe.getPrenom());
-        existant.setRole(employe.getRole());
-        existant.setAgence(employe.getAgence());
+        valider(entite);
+        existant.setNom(entite.getNom());
+        existant.setPrenom(entite.getPrenom());
+        existant.setRole(entite.getRole());
+        existant.setAgence(entite.getAgence());
         return employeRepository.save(existant);
     }
 
@@ -54,12 +53,10 @@ public class EmployeServiceImpl implements IEmployeService {
         employeRepository.deleteById(id);
     }
 
-    private void verifierRegles(Employe employe) {
-        if (employe.getNom() == null || employe.getNom().isBlank()) {
-            throw new IllegalArgumentException("Le nom de l'employé est obligatoire");
-        }
-        if (employe.getRole() == null) {
-            throw new IllegalArgumentException("Le rôle de l'employé est obligatoire");
+    private void valider(Employe entite) {
+        if (entite.getNom() == null || entite.getNom().isBlank() || entite.getPrenom() == null || entite.getPrenom().isBlank() || entite.getRole() == null) {
+            throw new IllegalArgumentException(
+                    "Le nom, le prénom et le rôle de l'employé sont obligatoires");
         }
     }
 }

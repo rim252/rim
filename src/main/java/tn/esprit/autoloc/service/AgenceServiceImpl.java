@@ -1,4 +1,4 @@
-package tn.esprit.autoloc.service.impl;
+package tn.esprit.autoloc.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Agence;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IAgenceRepository;
-import tn.esprit.autoloc.service.IAgenceService;
 
 @Service
 @RequiredArgsConstructor
@@ -15,13 +14,13 @@ public class AgenceServiceImpl implements IAgenceService {
     private final IAgenceRepository agenceRepository;
 
     @Override
-    public Agence create(Agence agence) {
-        if (agence.getIdAgence() != null) {
+    public Agence create(Agence entite) {
+        if (entite.getIdAgence() != null) {
             throw new IllegalArgumentException(
-                    "Une nouvelle agence ne doit pas avoir d'identifiant");
+                    "Un nouveau agence ne doit pas avoir d'identifiant");
         }
-        verifierRegles(agence);
-        return agenceRepository.save(agence);
+        valider(entite);
+        return agenceRepository.save(entite);
     }
 
     @Override
@@ -36,14 +35,13 @@ public class AgenceServiceImpl implements IAgenceService {
     }
 
     @Override
-    public Agence update(Long id, Agence agence) {
+    public Agence update(Long id, Agence entite) {
         Agence existant = findById(id);
-        verifierRegles(agence);
-        existant.setNom(agence.getNom());
-        existant.setVille(agence.getVille());
-        existant.setAdresse(agence.getAdresse());
-        existant.setTelephone(agence.getTelephone());
-        // employes et vehicules ne sont pas touchés (cascade ALL)
+        valider(entite);
+        existant.setNom(entite.getNom());
+        existant.setVille(entite.getVille());
+        existant.setAdresse(entite.getAdresse());
+        existant.setTelephone(entite.getTelephone());
         return agenceRepository.save(existant);
     }
 
@@ -55,9 +53,10 @@ public class AgenceServiceImpl implements IAgenceService {
         agenceRepository.deleteById(id);
     }
 
-    private void verifierRegles(Agence agence) {
-        if (agence.getNom() == null || agence.getNom().isBlank()) {
-            throw new IllegalArgumentException("Le nom de l'agence est obligatoire");
+    private void valider(Agence entite) {
+        if (entite.getNom() == null || entite.getNom().isBlank() || entite.getVille() == null || entite.getVille().isBlank() || entite.getAdresse() == null || entite.getAdresse().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Le nom, la ville et l'adresse de l'agence sont obligatoires");
         }
     }
 }
